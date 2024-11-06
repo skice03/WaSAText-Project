@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: WaSAText API
+  description: |
+    This is the API for the first WaSAText Homework.
+  version: "1"
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        '201':
+            description: User log-in action successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    identifier:
+                      type: integer
+                      example: 1
+                      
+  /user/{id}:
+    put: 
+      tags: ["users"]
+      summary: Set the user's display name
+      description: |
+        Set a new username for the specified user
+      operationId: setMyUserName
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New username for the user
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties: 
+                username: 
+                  type: string
+                  example: Anna
+        required: true
+      responses: 
+        '200':
+          description: Username successfully updated
