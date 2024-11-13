@@ -39,23 +39,53 @@ paths:
                     identifier:
                       type: integer
                       example: 1
-                      
-  /user/{id}:
+  /users/{id}:
+    get:
+      summary: Get the conversations of an user
+      description: |
+        Return the conversation IDs for the mentioned user
+      operationId: getMyConversations
+      parameters:
+        - name: id
+          in: path
+          description: The user ID for retrieving the conversations
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses: 
+        '200':
+          description: Array containing conversation IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                example: [120,121,122]
+        '400':
+          description: The user is not authenticated
+        '401':
+          description: The specified user doesn't exist
+                
+  /users/{id}/username:
     put: 
       tags: ["users"]
       summary: Set the user's display name
       description: |
-        Set a new username for the specified user
+        Sets a new username for the specified user
       operationId: setMyUserName
       parameters:
         - name: id
           in: path
+          description: |
+            The ID of the user to be updated
           required: true
           schema:
             type: integer
             example: 1
       requestBody:
-        description: New username for the user
+        description: New username
         content:
           application/json:
             schema: 
@@ -63,8 +93,49 @@ paths:
               properties: 
                 username: 
                   type: string
-                  example: Anna
+                  example: "Anna Lea"
+                  minLength: 3
+                  maxLength: 16
         required: true
       responses: 
         '200':
-          description: Username successfully updated
+          description: Successfully updated the username
+        '400':
+          description: Invalid input data
+        '401': 
+          description: The user is not authenticated
+        '404': 
+          description: The specified user doesn't exist
+  /users/{id}/photo:
+    put:
+      summary: Update the user's profile picture
+      description: |
+        Changes the user's profile picture to the specified .GIF file
+      operationId: setMyPhoto
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The ID of the user to be updated
+        schema:
+          type: integer
+          example: 1
+      requestBody:
+        description: The user's updated profile picture in .GIF format
+        content: 
+          image/gif:
+            schema:
+              type: string
+              format: binary
+              example: ("binary .gif data")
+        required: true
+      responses:
+        '200':
+          description: Successfully updated the user's photo
+        '400':
+          description: Invalid photo
+        '401':
+          description: The user is not authenticated.
+        '404':
+          description: The specified user doesn't exist
+# To be added
