@@ -127,7 +127,7 @@ paths:
             schema:
               type: string
               format: binary
-              example: ("binary .gif data")
+              example: "binary .gif data"
         required: true
       responses:
         '200':
@@ -135,7 +135,7 @@ paths:
         '400':
           description: Invalid photo
         '401':
-          description: The user is not authenticated.
+          description: The user is not authenticated
         '404':
           description: The specified user doesn't exist
 # To be added
