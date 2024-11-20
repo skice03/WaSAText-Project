@@ -24,13 +24,13 @@ paths:
                 name:
                   type: string
                   example: Maria
-                  pattern: 'ˆ.*?$'
+                  pattern: '^.*?$'
                   minLength: 3
                   maxLength: 16
         required: true
       responses:
         '201':
-            description: User log-in action successful
+            description: User log-in action successful.
             content:
               application/json:
                 schema:
@@ -39,53 +39,51 @@ paths:
                     identifier:
                       type: integer
                       example: 1
+                      
   /users/{id}:
     get:
-      summary: Get the conversations of an user
-      description: |
-        Return the conversation IDs for the mentioned user
+      summary: Get the conversations of a user
+      description: Return the conversation IDs for the mentioned user.
       operationId: getMyConversations
       parameters:
         - name: id
           in: path
-          description: The user ID for retrieving the conversations
+          description: The user ID for retrieving the conversations.
           required: true
           schema:
             type: integer
             example: 1
       responses: 
         '200':
-          description: Array containing conversation IDs
+          description: Array containing conversation IDs.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: integer
-                example: [120,121,122]
+                example: [101,102,103]
         '400':
-          description: The user is not authenticated
+          description: The user is not authenticated.
         '401':
-          description: The specified user doesn't exist
+          description: The specified user doesn't exist.
                 
   /users/{id}/username:
     put: 
       tags: ["users"]
       summary: Set the user's display name
-      description: |
-        Sets a new username for the specified user
+      description: Sets a new username for the specified user.
       operationId: setMyUserName
       parameters:
         - name: id
           in: path
-          description: |
-            The ID of the user to be updated
+          description: The ID of the user to be updated
           required: true
           schema:
             type: integer
             example: 1
       requestBody:
-        description: New username
+        description: The new username for the specified user
         content:
           application/json:
             schema: 
@@ -99,29 +97,29 @@ paths:
         required: true
       responses: 
         '200':
-          description: Successfully updated the username
+          description: Successfully updated the username.
         '400':
-          description: Invalid input data
+          description: Bad Request - Invalid input data.
         '401': 
-          description: The user is not authenticated
+          description: Unauthorized - The user is not authenticated.
         '404': 
-          description: The specified user doesn't exist
+          description: Not Found - The specified user doesn't exist.
+          
   /users/{id}/photo:
     put:
       summary: Update the user's profile picture
-      description: |
-        Changes the user's profile picture to the specified .GIF file
+      description: Changes the user's profile picture to the specified .GIF file.
       operationId: setMyPhoto
       parameters:
       - name: id
         in: path
         required: true
-        description: The ID of the user to be updated
+        description: The ID of the user to be updated.
         schema:
           type: integer
           example: 1
       requestBody:
-        description: The user's updated profile picture in .GIF format
+        description: The user's updated profile picture in .GIF format.
         content: 
           image/gif:
             schema:
@@ -131,11 +129,392 @@ paths:
         required: true
       responses:
         '200':
-          description: Successfully updated the user's photo
+          description: Successfully updated the user's photo.
         '400':
-          description: Invalid photo
+          description: Bad request - Invalid photo.
         '401':
-          description: The user is not authenticated
+          description: Unauthorized - The user is not authenticated.
         '404':
-          description: The specified user doesn't exist
-# To be added
+          description: The specified user doesn't exist.
+          
+  /conversations/{chatId}:
+    get:
+      summary: Get all message IDs from a conversation
+      description: Get the IDs of all messages in a conversation.
+      operationId: getConversation
+      parameters: 
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Array containing message IDs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                example: [101,102,103]
+        '401':
+          description: Unauthorized - The user doesn't belong to this conversation.
+        '404':
+          description: Not Found - The conversation doesn't exist.
+          
+    post:
+      summary: Send a new message inside the conversation
+      description: Allows the user to send a message.
+      operationId: sendMessage
+      parameters: 
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                message:
+                  type: string
+                  description: The content of the message to be sent in the conversation.
+                id: 
+                  type: integer
+                  description: The ID of the user sending the message.
+              required:
+               - message
+               - id
+        required: true
+      responses: 
+        '201':
+          description: A new message has been sent, returning its ID.
+          content:
+            application/json:
+              schema:
+                type: integer
+        '401':
+          description: Unauthorized - The user doesn't belong to this conversation.
+        '404':
+          description: Not found - The conversation doesn't exist.
+          
+  /conversations/{chatId}/{messageId}:
+    delete:
+      summary: Delete a message from a conversation
+      description: Allows a user to delete a message from a conversation.
+      operationId: deleteMessage
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+        - name: messageId
+          in: path
+          required: true
+          description: The ID of the message to be deleted.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: The message has been successfully deleted.
+        '401':
+          description: Unauthorized - The user is not authenticated.
+        '404':
+          description: Not Found - The specified message was not found in the conversation.
+          
+    put:
+      summary: Forward the message to a different conversation
+      description: Allows a user to forward a message from a conversation to a different one.
+      operationId: forwardMessage
+      parameters: 
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+        - name: messageId
+          in: path
+          required: true
+          description: The ID of the message to be forwarded.
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                newChatId: 
+                  type: integer
+                  description: The ID of the new destination conversation for the forwarded message.
+                id:
+                  type: integer
+                  description: The ID of the user sending the forwarded message.
+              required:
+                - newChatId
+                - id
+        required: true
+      responses: 
+        '201': 
+          description: The message has been successfully forwarded.
+        '401': 
+          description: Unauthorized - The user is not authenticated.
+        '404':
+          description: Not found - Message or conversation not found.
+  
+  /conversations/{chatId}/{messageId}/comment:
+    post: 
+      summary: Add a comment to a message in a conversation
+      description: Allows a user to add a new comment to a specific message in a conversation.
+      operationId: addComment
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+        - name: messageId
+          in: path
+          required: true
+          description: The ID of the message to which a comment will be added.
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                comment:
+                 type: string
+                 description: The comment to be added to the message.
+                 minLength: 1
+                 maxLength: 200
+              required:
+                - comment
+        required: true
+      responses:
+        '201':
+          description: The comment has been successfully added to the message.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+              example: [101, 102, 103]
+        '400':
+          description: Bad Request - Invalid comment data.
+        '401':
+          description: Unauthorized - The user is not authenticated.
+        '404':
+          description: Not found - Message or conversation not found.
+          
+    delete:
+      summary: Delete a comment from a message in a conversation
+      description: Allows a user to delete a comment from a specific message in a conversation.
+      operationId: uncommentMessage
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+        - name: messageId
+          in: path
+          required: true
+          description: The ID of the message from which the comment will be deleted.
+          schema:
+            type: integer
+        - name: commentId
+          in: query
+          required: true
+          description: The message ID from which the comment will be deleted.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The comment has been successfully deleted from the message.
+        '400':
+          description: Bad Request - Invalid comment ID or request data.
+        '401':
+          description: Unauthorized - The user is not authenticated.
+        '404':
+          description: Message or conversation not found.
+          
+  /conversations/{chatId}/chatName:
+    put:
+      summary: Set a new name for a group
+      description: Allows a user to change the name of a group.
+      operationId: setGroupName
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: The ID of the user who wants to change the name of the group. The user must have permission to change the group's name.
+                newGroupName:
+                  type: string
+                  description: The new name for the conversation.
+              required:
+                - userId
+                - newGroupName
+        required: true
+      responses:
+        '200':
+          description: Group name successfully updated.
+        '401':
+          description: Unauthorized - User is not authenticated.
+        '403':
+          description: Forbidden - User does not have permission to change the group name.
+        '404':
+          description: Not Found - Group not found.
+  
+  /conversations/{chatId}/photo:
+   put:
+    summary: Modify the photo (.gif) of a conversation
+    description: Allows a user to change the photo (.gif) of a conversation.
+    operationId: setGroupPhoto
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        image/gif:
+          schema:
+            type: object
+            properties:
+              groupPhoto:
+                type: string
+                format: binary
+                description: The updated group photo.
+              userId:
+                type: integer
+                description: The user ID requesting the change.
+            required:
+              - groupPhoto
+              - chatId
+    responses:
+      '200':
+        description: Group photo (GIF) successfully updated.
+      '401':
+        description: Unauthorized - User is not authenticated or lacks permission to change the photo.
+      '403':
+        description: Forbidden - The user cannot update the group photo.
+      '404':
+        description: Not Found - Group not found.
+
+  /conversations/{chatId}/members:
+    put:
+      summary: Add members to a conversation
+      description: Allows a user to add multiple members to a group.
+      operationId: addToGroup
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addedUsers:
+                  type: array
+                  items:
+                    type: integer
+                  description: A list of user IDs to be added to the conversation.
+              required:
+                - addedUsers
+      responses:
+        '200':
+          description: Members successfully added to the conversation.
+        '201':
+          description: New group created.
+    delete:
+      summary: Leave a group
+      description: Allows a user to leave a group
+      operationId: leaveGroup
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: The unique identifier of the conversation.
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          required: true
+          description: The user ID of the member to be removed from the conversation.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Member successfully removed from the conversation.
+        '401':
+          description: Unauthorized - Invalid credentials or session.
+        '403':
+          description: Forbidden - User does not have permission to remove members from the conversation.
+        '404':
+          description: Not Found - Conversation or user not found.
+        
+  /users/search:
+    get:
+      tags: ["users"]
+      summary: Search for users by username
+      description: Retrieve a list of users matching the search query.
+      operationId: searchUsers
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            example: "Louisa"
+      responses:
+        '200':
+          description: List of users matching the search query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    username:
+                      type: string
+                  example:
+                    - id: 1
+                      username: "Maria"
