@@ -113,6 +113,7 @@ components:
       maxLength: 2000
       pattern: '^.+$'
       example: "This is a message."
+      description: The plain text content of the message.
       
   securitySchemes:
     securityKey: 
@@ -137,6 +138,7 @@ paths:
           application/json:
             schema:
               type: object
+              description: The chosen username.
               properties:
                 name:
                   type: string
@@ -155,8 +157,7 @@ paths:
                   type: object
                   description: Fetches the username and the API key.
                   properties:
-                    username: 
-                      $ref: '#/components/schemas/username'
+                    username: { $ref: '#/components/schemas/username' }
                     apiKey:
                       type: string
                       example: "qwerty1234567890"
@@ -173,8 +174,7 @@ paths:
           in: path
           description: The ID of the user to be updated.
           required: true
-          schema:
-            $ref: '#/components/schemas/userId'
+          schema: { $ref: '#/components/schemas/userId' }
       security:
         - securityKey: []
       requestBody:
@@ -183,9 +183,9 @@ paths:
           application/json:
             schema: 
               type: object
+              description: Updated username.
               properties: 
-                username: 
-                  $ref: '#/components/schemas/username'
+                username: { $ref: '#/components/schemas/username' }
               required:
                 - username
         required: true
@@ -206,8 +206,7 @@ paths:
         in: path
         required: true
         description: The ID of the user to be updated.
-        schema:
-          $ref: '#/components/schemas/userId'
+        schema: { $ref: '#/components/schemas/userId' }
       security:
         - securityKey: []
       requestBody:
@@ -249,7 +248,7 @@ paths:
                     minItems: 0
                     maxItems: 2000
                     items: { $ref: '#/components/schemas/chatId' }
-                    description: Conversation IDs stored in an array.
+                    description: Array containing conversation IDs.
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
           
@@ -287,6 +286,7 @@ paths:
                     minItems: 0
                     maxItems: 2000
                     items: { $ref: '#/components/schemas/userId' }
+                    description: Array containing users.
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -433,14 +433,14 @@ paths:
               type: object
               description: A string representing the new name of the group.
               properties:
-                newGroupName: { $ref: '#/components/schemas/chatName'}
+                newGroupName: { $ref: '#/components/schemas/chatName' }
               required:
                 - newGroupName
         required: true
       security:
         - securityKey: []
       responses:
-        '204': { description: The group name has been successfully updated.. }
+        '204': { description: The group name has been successfully updated. }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden'}
         '404': { $ref: '#/components/responses/NotFound' }
@@ -469,6 +469,8 @@ paths:
               maxLength: 10000000
               description: Updated group photo (.gif file format)
         required: true
+      security:
+        - securityKey: []
       responses:
         '204': { description: The group photo has been successfully updated. }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -494,12 +496,13 @@ paths:
           application/json:
             schema:
               type: object
+              description: Members to be added.
               properties:
                 newMembers:
                   type: array
                   minItems: 0
                   maxItems: 2000
-                  items: { $ref: '#/components/schemas/userId'}
+                  items: { $ref: '#/components/schemas/userId' }
                   description: A list of user IDs to be added to the group.
               required:
                 - newMembers
