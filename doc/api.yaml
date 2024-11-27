@@ -1,13 +1,130 @@
 openapi: 3.0.3
+
 info:
   title: WaSAText API
-  description: |
-    This is the API for the first WaSAText Homework.
-  version: "1"
+  description: This is the API for the first WaSAText Homework.
+  version: 1.0.0
+  
+tags:
+  - name: login
+    description: Operations related to user authentication and login functionality.
+    
+  - name: users
+    description: Endpoints for managing user profile details.
+    
+  - name: conversations
+    description: Endpoints to list or retrieve details of conversations for a user.
+    
+  - name: messages
+    description: Endpoints for sending and managing messages within conversations.
+    
+  - name: groups
+    description: Endpoints to create, manage, and interact with user groups and group-related conversations.
+    
+components:
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input data.
+      content: 
+        application/json:
+          schema:
+            type: object
+            description: Represents an error response.
+            properties:
+              errorMessage:
+                type: string
+                example: "Bad Request"
+                description: The server could not process the request due to invalid syntax or missing required parameters.
+                
+    Unauthorized: 
+      description: Unauthorized - The user is not authenticated.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Represents an error response.
+            properties:
+              errorMessage:
+                type: string
+                example: "Unauthorized"
+                description: Authentication is required and has failed or has not been provided.
+                
+    Forbidden:
+      description: Forbidden - The action is prohibited.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Represents an error response.
+            properties:
+              errorMessage:
+                type: string
+                example: "Forbidden"
+                description: The client does not have permission to access the requested resource.
+                
+    NotFound:
+      description: Not Found - The resource could not be found.
+      content: 
+        application/json:
+          schema:
+            type: object
+            description: Represents an error response.
+            properties:
+              errorMessage:
+                type: string
+                example: "Not Found"
+                description: The server cannot find the requested resource. The URL may be incorrect or the resource does not exist.
+      
+  schemas:
+    username:
+      type: string
+      minLength: 3
+      maxLength: 16
+      pattern: '^.*?$'
+      example: Maria
+      description: The username which is between 3 and 16 characters long.
+    
+    userId:
+      type: integer
+      example: 1
+      description: The unique identifier of the user.
+    
+    chatId:
+      type: integer
+      example: 2
+      description: The unique identifier of the conversation.
+      
+    chatName:
+      type: string
+      minLength: 1
+      maxLength: 30
+      pattern: '^.*?$'
+      example: 'Group123'
+      description: A group username which has to be between 1 and 30 characters long.
+    
+    messageId:
+      type: integer
+      example: 3
+      description: The unique identifier of the message.
+      
+    messageContent:
+      type: string
+      minLength: 1
+      maxLength: 2000
+      pattern: '^.+$'
+      example: "This is a message."
+      
+  securitySchemes:
+    securityKey: 
+      type: apiKey
+      in: header
+      name: authorizationKey
+      description: API key that will be used for authorization.
+      
 paths:
   /session:
     post:
-      tags: ["login"]
+      tags: ['login']
       summary: Logs in the user
       description: |-
         If the user does not exist, it will be created,
@@ -27,6 +144,7 @@ paths:
                   pattern: '^.*?$'
                   minLength: 3
                   maxLength: 16
+                  description: The username has to be between 3 and 16 characters long.
         required: true
       responses:
         '201':
@@ -35,80 +153,53 @@ paths:
               application/json:
                 schema:
                   type: object
+                  description: Fetches the username and the API key.
                   properties:
-                    identifier:
-                      type: integer
-                      example: 1
-                      
-  /users/{id}:
-    get:
-      summary: Get the conversations of a user
-      description: Return the conversation IDs for the mentioned user.
-      operationId: getMyConversations
-      parameters:
-        - name: id
-          in: path
-          description: The user ID for retrieving the conversations.
-          required: true
-          schema:
-            type: integer
-            example: 1
-      responses: 
-        '200':
-          description: Array containing conversation IDs.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-                example: [101,102,103]
-        '400':
-          description: The user is not authenticated.
-        '401':
-          description: The specified user doesn't exist.
-                
+                    username: 
+                      $ref: '#/components/schemas/username'
+                    apiKey:
+                      type: string
+                      example: "qwerty1234567890"
+                      description: The API key that will be returned upon login.
+                    
   /users/{id}/username:
     put: 
-      tags: ["users"]
-      summary: Set the user's display name
+      tags: ['users']
+      summary: Set the user's display name for the user
       description: Sets a new username for the specified user.
       operationId: setMyUserName
       parameters:
         - name: id
           in: path
-          description: The ID of the user to be updated
+          description: The ID of the user to be updated.
           required: true
           schema:
-            type: integer
-            example: 1
+            $ref: '#/components/schemas/userId'
+      security:
+        - securityKey: []
       requestBody:
-        description: The new username for the specified user
+        description: The new username for the specified user.
         content:
           application/json:
             schema: 
               type: object
               properties: 
                 username: 
-                  type: string
-                  example: "Anna Lea"
-                  minLength: 3
-                  maxLength: 16
+                  $ref: '#/components/schemas/username'
+              required:
+                - username
         required: true
       responses: 
-        '200':
-          description: Successfully updated the username.
-        '400':
-          description: Bad Request - Invalid input data.
-        '401': 
-          description: Unauthorized - The user is not authenticated.
-        '404': 
-          description: Not Found - The specified user doesn't exist.
+        '204': { description:  Successfully updated the username. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound'}
           
   /users/{id}/photo:
     put:
+      tags: ['users']
       summary: Update the user's profile picture
-      description: Changes the user's profile picture to the specified .GIF file.
+      description: Changes the user's profile picture to the specified .gif file.
       operationId: setMyPhoto
       parameters:
       - name: id
@@ -116,405 +207,319 @@ paths:
         required: true
         description: The ID of the user to be updated.
         schema:
-          type: integer
-          example: 1
+          $ref: '#/components/schemas/userId'
+      security:
+        - securityKey: []
       requestBody:
-        description: The user's updated profile picture in .GIF format.
+        description: The user's updated profile picture in .gif format.
         content: 
           image/gif:
             schema:
               type: string
               format: binary
-              example: "binary .gif data"
+              minLength: 50
+              maxLength: 10000000
+              description: The uploaded the .gif image
         required: true
       responses:
-        '200':
-          description: Successfully updated the user's photo.
-        '400':
-          description: Bad request - Invalid photo.
-        '401':
-          description: Unauthorized - The user is not authenticated.
-        '404':
-          description: The specified user doesn't exist.
+        '204': { description: Successfully updated the user's photo. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound'}
           
-  /conversations/{chatId}:
+  /chats:
     get:
+      tags: ['conversations']
+      summary: Get the conversations of a user
+      description: Return the conversation IDs for the mentioned user.
+      operationId: getMyConversations
+      security:
+        - securityKey: []
+      responses:
+        '200':
+          description: Array containing conversation IDs.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Fetches the conversation ID.
+                properties:
+                  userChats:
+                    type: array
+                    minItems: 0
+                    maxItems: 2000
+                    items: { $ref: '#/components/schemas/chatId' }
+                    description: Conversation IDs stored in an array.
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+          
+  /chats/{chatId}:
+    parameters: 
+      - name: chatId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/chatId' }
+        description: The unique identifier of the conversation.
+    get:
+      tags: ['conversations']
       summary: Get all message IDs from a conversation
       description: Get the IDs of all messages in a conversation.
       operationId: getConversation
-      parameters: 
-      - name: chatId
-        in: path
-        required: true
-        description: The unique identifier of the conversation.
-        schema:
-          type: integer
-      responses:
+      security:
+        - securityKey: []
+      responses: 
         '200':
-          description: Array containing message IDs.
+          description: Array containing message IDs and sender details.
           content:
             application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-                example: [101,102,103]
-        '401':
-          description: Unauthorized - The user doesn't belong to this conversation.
-        '404':
-          description: Not Found - The conversation doesn't exist.
-          
+              schema: 
+                type: object
+                description: Return all message IDs from a specified conversation.
+                properties: 
+                  message:
+                    type: array
+                    minItems: 0
+                    maxItems: 15000
+                    items: { $ref: '#/components/schemas/messageId' }
+                    description: Array containing messages.
+                  members:
+                    type: array
+                    minItems: 0
+                    maxItems: 2000
+                    items: { $ref: '#/components/schemas/userId' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        
     post:
+      tags: ['messages']
       summary: Send a new message inside the conversation
       description: Allows the user to send a message.
       operationId: sendMessage
-      parameters: 
+      requestBody:
+        description: The content of the message to be sent in the conversation.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/messageContent' }
+          image/gif:
+            schema: 
+              type: string
+              format: binary
+              minLength: 50
+              maxLength: 10000000
+              description: .gif image content
+        required: true
+      security:
+        - securityKey: []
+      responses:
+        '204': { description: The message has been successfully sent. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  
+  /chats/{chatId}/messages/{messageId}:
+    parameters:
       - name: chatId
         in: path
         required: true
+        schema: { $ref: '#/components/schemas/chatId' }
         description: The unique identifier of the conversation.
-        schema:
-          type: integer
+      - name: messageId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/messageId' }
+        description: The unique identifier of the message.  
+          
+    post:
+      tags: ['messages']
+      summary: Forward a message to a different conversation
+      description: Allows a user to forward a message from a conversation to a different one.
+      operationId: forwardMessage
       requestBody:
+        description: Details about the forwarded message.
         content:
           application/json:
             schema:
+              description: Fetches the ID and the destination conversation of the forwarded message.
               type: object
-              properties: 
-                message:
-                  type: string
-                  description: The content of the message to be sent in the conversation.
-                id: 
-                  type: integer
-                  description: The ID of the user sending the message.
-              required:
-               - message
-               - id
+              properties:
+                messageId: { $ref: '#/components/schemas/messageId' }
+                forwardedChatId: { $ref: '#/components/schemas/chatId' }
         required: true
-      responses: 
-        '201':
-          description: A new message has been sent, returning its ID.
-          content:
-            application/json:
-              schema:
-                type: integer
-        '401':
-          description: Unauthorized - The user doesn't belong to this conversation.
-        '404':
-          description: Not found - The conversation doesn't exist.
-          
-  /conversations/{chatId}/{messageId}:
+      security:
+        - securityKey: []
+      responses:
+        '204': { description: The message has been successfully forwarded. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        
     delete:
+      tags: ['messages']
       summary: Delete a message from a conversation
       description: Allows a user to delete a message from a conversation.
       operationId: deleteMessage
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-        - name: messageId
-          in: path
-          required: true
-          description: The ID of the message to be deleted.
-          schema:
-            type: integer
+      security:
+        - securityKey: []
       responses:
-        '204':
-          description: The message has been successfully deleted.
-        '401':
-          description: Unauthorized - The user is not authenticated.
-        '404':
-          description: Not Found - The specified message was not found in the conversation.
-          
-    put:
-      summary: Forward the message to a different conversation
-      description: Allows a user to forward a message from a conversation to a different one.
-      operationId: forwardMessage
-      parameters: 
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-        - name: messageId
-          in: path
-          required: true
-          description: The ID of the message to be forwarded.
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: 
-                newChatId: 
-                  type: integer
-                  description: The ID of the new destination conversation for the forwarded message.
-                id:
-                  type: integer
-                  description: The ID of the user sending the forwarded message.
-              required:
-                - newChatId
-                - id
-        required: true
-      responses: 
-        '201': 
-          description: The message has been successfully forwarded.
-        '401': 
-          description: Unauthorized - The user is not authenticated.
-        '404':
-          description: Not found - Message or conversation not found.
-  
-  /conversations/{chatId}/{messageId}/comment:
-    post: 
-      summary: Add a comment to a message in a conversation
-      description: Allows a user to add a new comment to a specific message in a conversation.
-      operationId: addComment
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-        - name: messageId
-          in: path
-          required: true
-          description: The ID of the message to which a comment will be added.
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: 
-                comment:
-                 type: string
-                 description: The comment to be added to the message.
-                 minLength: 1
-                 maxLength: 200
-              required:
-                - comment
-        required: true
-      responses:
-        '201':
-          description: The comment has been successfully added to the message.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-              example: [101, 102, 103]
-        '400':
-          description: Bad Request - Invalid comment data.
-        '401':
-          description: Unauthorized - The user is not authenticated.
-        '404':
-          description: Not found - Message or conversation not found.
-          
-    delete:
-      summary: Delete a comment from a message in a conversation
-      description: Allows a user to delete a comment from a specific message in a conversation.
-      operationId: uncommentMessage
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-        - name: messageId
-          in: path
-          required: true
-          description: The ID of the message from which the comment will be deleted.
-          schema:
-            type: integer
-        - name: commentId
-          in: query
-          required: true
-          description: The message ID from which the comment will be deleted.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: The comment has been successfully deleted from the message.
-        '400':
-          description: Bad Request - Invalid comment ID or request data.
-        '401':
-          description: Unauthorized - The user is not authenticated.
-        '404':
-          description: Message or conversation not found.
-          
-  /conversations/{chatId}/chatName:
-    put:
-      summary: Set a new name for a group
-      description: Allows a user to change the name of a group.
-      operationId: setGroupName
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                  description: The ID of the user who wants to change the name of the group. The user must have permission to change the group's name.
-                newGroupName:
-                  type: string
-                  description: The new name for the conversation.
-              required:
-                - userId
-                - newGroupName
-        required: true
-      responses:
-        '200':
-          description: Group name successfully updated.
-        '401':
-          description: Unauthorized - User is not authenticated.
-        '403':
-          description: Forbidden - User does not have permission to change the group name.
-        '404':
-          description: Not Found - Group not found.
-  
-  /conversations/{chatId}/photo:
-   put:
-    summary: Modify the photo (.gif) of a conversation
-    description: Allows a user to change the photo (.gif) of a conversation.
-    operationId: setGroupPhoto
+        '204': { description: The message has been successfully deleted. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        
+  /chats/{chatId}/messages/{messageId}/comments:
     parameters:
       - name: chatId
         in: path
         required: true
         description: The unique identifier of the conversation.
-        schema:
-          type: integer
-    requestBody:
-      required: true
-      content:
-        image/gif:
-          schema:
-            type: object
-            properties:
-              groupPhoto:
-                type: string
-                format: binary
-                description: The updated group photo.
-              userId:
-                type: integer
-                description: The user ID requesting the change.
-            required:
-              - groupPhoto
-              - chatId
-    responses:
-      '200':
-        description: Group photo (GIF) successfully updated.
-      '401':
-        description: Unauthorized - User is not authenticated or lacks permission to change the photo.
-      '403':
-        description: Forbidden - The user cannot update the group photo.
-      '404':
-        description: Not Found - Group not found.
-
-  /conversations/{chatId}/members:
+        schema: { $ref: '#/components/schemas/chatId' }
+      - name: messageId
+        in: path
+        required: true
+        description: The ID of the message to which a comment will be added.
+        schema: { $ref: '#/components/schemas/messageId' }
+          
+    post:
+      tags: ['messages']
+      summary: Add a comment to a message in a conversation
+      description: Allows a user to add a new comment to a specific message in a conversation.
+      operationId: commentMessage
+      requestBody:
+        description: The comment to be added to the message.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/messageContent' }
+        required: true
+      security:
+        - securityKey: []
+      responses:
+        '204': { description: The comment has been successfully added to the message. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+          
+    delete:
+      tags: ['messages']
+      summary: Delete a comment from a message in a conversation
+      description: Allows a user to delete a comment from a specific message in a conversation.
+      operationId: uncommentMessage
+      security: 
+        - securityKey: []
+      responses:
+        '204': { description: The comment has been successfully removed from the message. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+          
+  /chats/{chatId}/chatName:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema: { $ref: '#/components/schemas/chatId' }
+    
     put:
-      summary: Add members to a conversation
+      tags: ['groups']
+      summary: Set a new name for a group
+      description: Allows a user to change the name of a group.
+      operationId: setGroupName
+      requestBody:
+        description: The new name for the group.
+        content:
+          application/json:
+            schema:
+              type: object
+              description: A string representing the new name of the group.
+              properties:
+                newGroupName: { $ref: '#/components/schemas/chatName'}
+              required:
+                - newGroupName
+        required: true
+      security:
+        - securityKey: []
+      responses:
+        '204': { description: The group name has been successfully updated.. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden'}
+        '404': { $ref: '#/components/responses/NotFound' }
+  
+  /chats/{chatId}/photo:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema: { $ref: '#/components/schemas/chatId' }
+  
+    put:
+      tags: ['groups']
+      summary: Modify the photo (.gif) of a conversation
+      description: Allows a user to change the photo (.gif file format) of a conversation.
+      operationId: setGroupPhoto
+      requestBody:
+        description: The new group photo (.gif)
+        content:
+          image/gif:
+            schema:
+              type: string
+              format: binary
+              minLength: 50
+              maxLength: 10000000
+              description: Updated group photo (.gif file format)
+        required: true
+      responses:
+        '204': { description: The group photo has been successfully updated. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden'}
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chats/{chatId}/members:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: The unique identifier of the conversation.
+        schema: { $ref: '#/components/schemas/chatId' }
+      
+    put:
+      tags: ['groups']
+      summary: Add members to a group conversation
       description: Allows a user to add multiple members to a group.
       operationId: addToGroup
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
       requestBody:
-        required: true
+        description: The user IDs to be added to the group.
         content:
           application/json:
             schema:
               type: object
               properties:
-                addedUsers:
+                newMembers:
                   type: array
-                  items:
-                    type: integer
-                  description: A list of user IDs to be added to the conversation.
+                  minItems: 0
+                  maxItems: 2000
+                  items: { $ref: '#/components/schemas/userId'}
+                  description: A list of user IDs to be added to the group.
               required:
-                - addedUsers
+                - newMembers
+        required: true
+      security:
+        - securityKey: []
       responses:
-        '200':
-          description: Members successfully added to the conversation.
-        '201':
-          description: New group created.
+        '204': { description: The member(s) have been successfully added to the group. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden'}
+        '404': { $ref: '#/components/responses/NotFound' }
+        
     delete:
+      tags: ['groups']
       summary: Leave a group
       description: Allows a user to leave a group
       operationId: leaveGroup
-      parameters:
-        - name: chatId
-          in: path
-          required: true
-          description: The unique identifier of the conversation.
-          schema:
-            type: integer
-        - name: userId
-          in: query
-          required: true
-          description: The user ID of the member to be removed from the conversation.
-          schema:
-            type: integer
+      security:
+        - securityKey: []
       responses:
-        '200':
-          description: Member successfully removed from the conversation.
-        '401':
-          description: Unauthorized - Invalid credentials or session.
-        '403':
-          description: Forbidden - User does not have permission to remove members from the conversation.
-        '404':
-          description: Not Found - Conversation or user not found.
-        
-  /users/search:
-    get:
-      tags: ["users"]
-      summary: Search for users by username
-      description: Retrieve a list of users matching the search query.
-      operationId: searchUsers
-      parameters:
-        - name: username
-          in: query
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            example: "Louisa"
-      responses:
-        '200':
-          description: List of users matching the search query.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    username:
-                      type: string
-                  example:
-                    - id: 1
-                      username: "Maria"
+        '204': { description: Successfully left the group. }
+        '403': { $ref: '#/components/responses/Forbidden'}
+        '404': { $ref: '#/components/responses/NotFound' }
