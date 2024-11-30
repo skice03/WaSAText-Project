@@ -83,6 +83,13 @@ components:
       pattern: '^.*?$'
       example: Maria
       description: The username which is between 3 and 16 characters long.
+      
+    gifMedia:
+      type: string
+      minLength: 50
+      maxLength: 10000000
+      format: binary
+      description: .gif image content
     
     userId:
       type: integer
@@ -164,17 +171,18 @@ paths:
                       description: The API key that will be returned upon login.
                     
   /users/{id}/username:
+    parameters:
+      - name: id
+        in: path
+        description: The ID of the user to be updated.
+        required: true
+        schema: { $ref: '#/components/schemas/userId' }
+        
     put: 
       tags: ['users']
-      summary: Set the user's display name for the user
+      summary: Set the user's display name
       description: Sets a new username for the specified user.
       operationId: setMyUserName
-      parameters:
-        - name: id
-          in: path
-          description: The ID of the user to be updated.
-          required: true
-          schema: { $ref: '#/components/schemas/userId' }
       security:
         - securityKey: []
       requestBody:
@@ -195,18 +203,36 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound'}
           
-  /users/{id}/photo:
-    put:
+    get:
       tags: ['users']
-      summary: Update the user's profile picture
-      description: Changes the user's profile picture to the specified .gif file.
-      operationId: setMyPhoto
-      parameters:
+      summary: Retrieve the user's name
+      description: Retrieve the username via user ID.
+      operationId: getUsername
+      security:
+        - securityKey: []
+      responses:
+        '200': 
+          description: Successfully retrieved the username.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/username' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound'}
+          
+  /users/{id}/photo:
+    parameters:
       - name: id
         in: path
         required: true
         description: The ID of the user to be updated.
         schema: { $ref: '#/components/schemas/userId' }
+        
+    put:
+      tags: ['users']
+      summary: Update the user's profile picture
+      description: Changes the user's profile picture to the specified .gif file.
+      operationId: setMyPhoto
       security:
         - securityKey: []
       requestBody:
@@ -225,7 +251,24 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound'}
-          
+        
+    get:
+      tags: ['users']
+      summary: Retrieve the user's profile picture.
+      description: Retrieve the profile photo (.gif image) via user ID.
+      operationId: getPhoto
+      security:
+        - securityKey: []
+      responses:
+        '200': 
+          description: Successfully retrieved the photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/gifMedia' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound'}
+      
   /chats:
     get:
       tags: ['conversations']
@@ -259,21 +302,22 @@ paths:
         required: true
         schema: { $ref: '#/components/schemas/chatId' }
         description: The unique identifier of the conversation.
+        
     get:
       tags: ['conversations']
-      summary: Get all message IDs from a conversation
-      description: Get the IDs of all messages in a conversation.
+      summary: Get the details of a specific conversation
+      description: Get the details of a specific conversation via ID.
       operationId: getConversation
       security:
         - securityKey: []
       responses: 
         '200':
-          description: Array containing message IDs and sender details.
+          description: Array containing message and sender details.
           content:
             application/json:
               schema: 
                 type: object
-                description: Return all message IDs from a specified conversation.
+                description: Return every message & user ID from a specified conversation.
                 properties: 
                   message:
                     type: array
@@ -316,7 +360,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
-  
+    
   /chats/{chatId}/messages/{messageId}:
     parameters:
       - name: chatId
@@ -354,6 +398,47 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         
+    get:
+      tags: ['messages']
+      summary: Retrieve messages from a conversation
+      description: Retrieve the content of a message.
+      operationId: getMessage
+      security:
+        - securityKey: []
+      responses:
+        '200': 
+          description: Successfully retrieved the message.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The content of the message.
+                properties:
+                  textMessage: { $ref: '#/components/schemas/messageContent' }
+                  sender: { $ref: '#/components/schemas/userId' }
+                  gifImage: { $ref: '#/components/schemas/gifMedia' }
+                  isPhoto: 
+                    type: boolean
+                    description: Specifies if the message is a photo or not.
+                  isForwarded: 
+                    type: boolean
+                    description: Specifies if the message is forwarded or not.
+                  status: 
+                    type: array
+                    minItems: 0
+                    maxItems: 2000
+                    items: { $ref: '#/components/schemas/userId' }
+                    description: Indicates if the user has received and read the message.
+                  textComment: { $ref: '#/components/schemas/messageContent' }  
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2017-07-21T17:32:28Z'
+                    description: Indicates the time when the message was sent.
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+                    
     delete:
       tags: ['messages']
       summary: Delete a message from a conversation
@@ -433,7 +518,7 @@ paths:
               type: object
               description: A string representing the new name of the group.
               properties:
-                newGroupName: { $ref: '#/components/schemas/chatName' }
+                newGroupName: { $ref: '#/components/schemas/chatName'}
               required:
                 - newGroupName
         required: true
@@ -443,6 +528,23 @@ paths:
         '204': { description: The group name has been successfully updated. }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden'}
+        '404': { $ref: '#/components/responses/NotFound' }
+        
+    get:
+      tags: ['groups']
+      summary: Retrieve a group name.
+      description: Retrieves the name of a group chat.
+      operationId: getChatName
+      security: 
+        - securityKey: []
+      responses:
+        '200':
+          description: Succesfully retrived the group name.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/chatName' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
   
   /chats/{chatId}/photo:
@@ -476,6 +578,23 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden'}
         '404': { $ref: '#/components/responses/NotFound' }
+        
+    get:
+      tags: ['groups']
+      summary: Retrieve a group photo.
+      description: Retrieves the photo (.gif image) of a group chat.
+      operationId: getChatPhoto
+      security: 
+        - securityKey: []
+      responses:
+        '200':
+          description: Succesfully retrived the group photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/gifMedia' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }    
 
   /chats/{chatId}/members:
     parameters:
@@ -524,5 +643,5 @@ paths:
         - securityKey: []
       responses:
         '204': { description: Successfully left the group. }
-        '403': { $ref: '#/components/responses/Forbidden'}
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
