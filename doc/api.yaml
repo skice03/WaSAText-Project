@@ -416,7 +416,6 @@ paths:
                 properties:
                   textMessage: { $ref: '#/components/schemas/messageContent' }
                   sender: { $ref: '#/components/schemas/userId' }
-                  gifImage: { $ref: '#/components/schemas/gifMedia' }
                   isPhoto: 
                     type: boolean
                     description: Specifies if the message is a photo or not.
@@ -450,6 +449,37 @@ paths:
         '204': { description: The message has been successfully deleted. }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /chats/{chatId}/messages/{messageId}/photo:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/chatId' }
+        description: The unique identifier of the conversation.
+      - name: messageId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/messageId' }
+        description: The unique identifier of the message.
+
+    get:
+      tags: ['messages']
+      summary: Retrieve .gif messages in a conversation
+      description: Retrieve the .gif content of a message.
+      operationId: getMessagePhoto
+      security:
+        - securityKey: []
+      responses:
+        '200': 
+          description: Successfully retrieved the message.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/gifMedia' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         
   /chats/{chatId}/messages/{messageId}/comments:
