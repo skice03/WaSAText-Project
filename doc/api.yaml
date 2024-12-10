@@ -556,6 +556,7 @@ paths:
         - securityKey: []
       responses:
         '204': { description: The group name has been successfully updated. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden'}
         '404': { $ref: '#/components/responses/NotFound' }
@@ -661,7 +662,8 @@ paths:
       responses:
         '204': { description: The member(s) have been successfully added to the group. }
         '400': { $ref: '#/components/responses/BadRequest' }
-        '403': { $ref: '#/components/responses/Forbidden'}
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         
     delete:
@@ -673,5 +675,6 @@ paths:
         - securityKey: []
       responses:
         '204': { description: Successfully left the group. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
