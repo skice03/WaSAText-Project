@@ -238,13 +238,8 @@ paths:
       requestBody:
         description: The user's updated profile picture in .gif format.
         content:
-          image/gif:
-            schema:
-              type: string
-              format: binary
-              minLength: 50
-              maxLength: 10000000
-              description: The uploaded the .gif image
+          image/gif: 
+            schema: { $ref: '#/components/schemas/gifMedia' }
         required: true
       responses:
         '204': { description: Successfully updated the user's photo. }
@@ -346,12 +341,7 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/messageContent' }
           image/gif:
-            schema:
-              type: string
-              format: binary
-              minLength: 50
-              maxLength: 10000000
-              description: .gif image content
+            schema: { $ref: '#/components/schemas/gifMedia' }
         required: true
       security:
         - securityKey: []
@@ -475,7 +465,7 @@ paths:
         '200':
           description: Successfully retrieved the message.
           content:
-            application/json:
+            image/gif:
               schema: { $ref: '#/components/schemas/gifMedia' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -595,12 +585,7 @@ paths:
         description: The new group photo (.gif)
         content:
           image/gif:
-            schema:
-              type: string
-              format: binary
-              minLength: 50
-              maxLength: 10000000
-              description: Updated group photo (.gif file format)
+            schema: { $ref: '#/components/schemas/gifMedia' }
         required: true
       security:
         - securityKey: []
@@ -621,7 +606,7 @@ paths:
         '200':
           description: Succesfully retrived the group photo.
           content:
-            application/json:
+            image/gif:
               schema: { $ref: '#/components/schemas/gifMedia' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
