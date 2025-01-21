@@ -555,7 +555,7 @@ paths:
       tags: ['groups']
       summary: Retrieve a group name.
       description: Retrieves the name of a group chat.
-      operationId: getChatName
+      operationId: getGroupName
       security:
         - securityKey: []
       responses:
@@ -599,7 +599,7 @@ paths:
       tags: ['groups']
       summary: Retrieve a group photo.
       description: Retrieves the photo (.gif image) of a group chat.
-      operationId: getChatPhoto
+      operationId: getGroupPhoto
       security:
         - securityKey: []
       responses:
