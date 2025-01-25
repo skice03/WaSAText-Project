@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"wasatext/service/api/reqcontext"
 
@@ -9,7 +8,5 @@ import (
 )
 
 func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
 
-	json.NewEncoder(w).Encode(id)
 }

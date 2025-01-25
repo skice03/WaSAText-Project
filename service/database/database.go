@@ -12,6 +12,10 @@ import (
 type AppDatabase interface {
 	//here
 	//doLogin(string) (User, error)
+	UserExistence(username string) (bool, error)
+	CreateUser(username string, securityKey string) (int, error)
+	GetUserId(username string) (int, error)
+	GetUserKey(userId int) (string, error)
 
 	Ping() error
 }
