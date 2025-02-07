@@ -15,7 +15,7 @@ type AppDatabase interface {
 	CreateUser(username string, securityKey string) (int, error)
 	GetUserId(username string) (int, error)
 	GetUserKey(userId int) (string, error)
-
+	GetUsername(userId int) (string, error)
 	Ping() error
 }
 

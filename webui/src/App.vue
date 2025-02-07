@@ -41,7 +41,7 @@ export default {}
 					</h6>
 						<li class="nav-item">
 							<RouterLink to="/" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-in"/></svg>
 								Login
 							</RouterLink>
 						</li> 
