@@ -1,6 +1,6 @@
 package database
 
-// checking whether an user exists or not
+// Checking whether an user exists or not
 func (db *appdbimpl) UserExistence(username string) (bool, error) {
 	var count int
 	err := db.c.QueryRow(`
@@ -13,7 +13,7 @@ func (db *appdbimpl) UserExistence(username string) (bool, error) {
 	return count > 0, nil
 }
 
-// creating a new user
+// Creating a new user
 func (db *appdbimpl) CreateUser(username string, securityKey string) (int, error) {
 	res, err := db.c.Exec(`
 		INSERT INTO users (username, security_key) 
@@ -25,7 +25,7 @@ func (db *appdbimpl) CreateUser(username string, securityKey string) (int, error
 	return int(id), err
 }
 
-// retrieving the username by user id
+// Retrieving the username by user ID
 func (db *appdbimpl) GetUserId(username string) (int, error) {
 	var userId int
 	err := db.c.QueryRow(`
@@ -36,7 +36,7 @@ func (db *appdbimpl) GetUserId(username string) (int, error) {
 	return userId, nil
 }
 
-// retrieving the api key by user id
+// Retrieving the api key by user id
 func (db *appdbimpl) GetUserKey(userId int) (string, error) {
 	var key string
 	err := db.c.QueryRow(`

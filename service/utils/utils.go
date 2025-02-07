@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-// error handling
+// Error handling
 var ErrUserDoesNotExist = errors.New("user doesn't exist")
 var ErrUserNotFound = errors.New("user not found")
 var ErrInternalServerError = errors.New("internal server error")
