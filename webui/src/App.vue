@@ -23,13 +23,14 @@ export default {}
 					</h6>
 					<ul class="nav flex-column">
 						<li class="nav-item">
-							<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
+						<!--	<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link"> -->
+							<RouterLink :to="'/chats/'" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-square"/></svg>
 								Chats
 							</RouterLink>
 						</li>
 						<li class="nav-item">
-							<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
+							<RouterLink :to="'/my_profile'" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 								Profile
 							</RouterLink>

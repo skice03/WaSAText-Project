@@ -46,7 +46,7 @@ export default {
         });
 
         this.username = userResponse.data.username; // Display the retrieved username
-        this.msg = "Logged in successfully";
+        this.msg = "Logged in successfully. " + `Welcome back ${this.username}`;
       } catch (e) {
         this.msg = "Login failed: " + (e.response?.data?.error || e.message);
       }
