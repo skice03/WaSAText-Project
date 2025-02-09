@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"errors"
-	"net/http"
 	"regexp"
 )
 
 // Error handling
+/*
 var ErrUserDoesNotExist = errors.New("user doesn't exist")
 var ErrUserNotFound = errors.New("user not found")
 var ErrInternalServerError = errors.New("internal server error")
@@ -29,6 +28,7 @@ func ErrorTranslate(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
+*/
 
 func ValidUsername(username string) bool {
 	isValid := regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(username)

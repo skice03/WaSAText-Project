@@ -19,17 +19,17 @@ func (rt *_router) getUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// Extract the token by removing 'Bearer ' prefix
+	// Extract the token from the Bearer prefix
 	token := authHeader[len(bearerPrefix):]
 
-	if token == "" { //The user should be able to get the name of any user, he just needs to have a valid token
+	if token == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Empty token"})
 	}
 	// Extract the user ID from the URL path
 	userIDParam := ps.ByName("id")
 
-	// Convert userID to integer
+	// Convert user ID to integer
 	requestedUserID, err := strconv.Atoi(userIDParam)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
