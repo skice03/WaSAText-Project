@@ -46,3 +46,20 @@ func (db *appdbimpl) GetUserKey(userId int) (string, error) {
 	}
 	return key, nil
 }
+
+// Get the username
+func (db *appdbimpl) GetUsername(userID int) (string, error) {
+	var username string
+	err := db.c.QueryRow(`
+		SELECT username FROM users WHERE ID = ?`, userID).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}
+
+// Update the username
+func (db *appdbimpl) UpdateUsername(userID int, newUsername string) error {
+	_, err := db.c.Exec("UPDATE users SET username = ? WHERE id = ?", newUsername, userID)
+	return err
+}

@@ -30,7 +30,7 @@ export default {}
 							</RouterLink>
 						</li>
 						<li class="nav-item">
-							<RouterLink :to="'/my_profile'" class="nav-link">
+							<RouterLink :to="'/myprofile'" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 								Profile
 							</RouterLink>

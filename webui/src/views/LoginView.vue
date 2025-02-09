@@ -14,7 +14,7 @@
         />
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
-      <p v-if="msg" class="text-danger">{{ msg }}</p>
+      <p v-if="msg" :class="{ 'text-success': success, 'text-danger': !success }">{{ msg }}</p>
     </form>
   </div>
 </template>
@@ -26,11 +26,19 @@ export default {
       username: "",
       msg: "",
       securityKey: null,
-      userId: null
+      userId: null,
+      success: false,
     };
+  },
+  created() {
+    // Clear session data when accessing the login page
+    localStorage.removeItem("securityKey");
+    localStorage.removeItem("userId");
+    console.log("User has been logged out.");
   },
   methods: {
     async loginUser() {
+      this.success = false;
       this.msg = "";
       try {
         // Login to get the security key and user ID
@@ -40,13 +48,19 @@ export default {
         this.securityKey = response.data.apiKey;
         this.userId = response.data.userId;
 
+        // Store the security key and user ID locally
+        localStorage.setItem("securityKey", this.securityKey);
+        localStorage.setItem("userId", this.userId);
+        console.log("User data:", this.securityKey, this.userId);
+
         // Fetch username using the user ID and security key
         let userResponse = await this.$axios.get(`/users/${this.userId}/username`, {
           headers: { Authorization: `Bearer ${this.securityKey}` }
         });
 
-        this.username = userResponse.data.username; // Display the retrieved username
-        this.msg = "Logged in successfully. " + `Welcome back ${this.username}`;
+        this.username = userResponse.data.username;
+        this.msg = `Logged in successfully. Welcome back ${this.username}`;
+        this.success = true;
       } catch (e) {
         this.msg = "Login failed: " + (e.response?.data?.error || e.message);
       }
@@ -54,9 +68,6 @@ export default {
   }
 };
 </script>
-
-
-  
 
 <style>
 </style>
