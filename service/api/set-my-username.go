@@ -29,8 +29,8 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// Verify if the token matches the user's actual key
-	actualKey, err := rt.db.GetUserKey(userID)
-	if err != nil || actualKey != token {
+	securityKey, err := rt.db.GetUserKey(userID)
+	if err != nil || securityKey != token {
 		writeErrorResponse(w, http.StatusUnauthorized, "Invalid session. Please log in again.")
 		return
 	}
