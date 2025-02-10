@@ -70,7 +70,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 	} else {
-		userId, err = rt.db.GetUserId(username)
+		userId, err = rt.db.GetUserIdByUsername(username)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Error retrieving user ID"})

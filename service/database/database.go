@@ -12,16 +12,20 @@ import (
 type AppDatabase interface {
 	UserExists(username string) (bool, error)
 	CreateUser(username string, securityKey string) (int, error)
-	GetUserId(username string) (int, error)
 	GetUserKey(userId int) (string, error)
+	GetUserIdByKey(securityKey string) (int, error)
 	GetUsername(userId int) (string, error)
-	UpdateUsername(userId int, username string) error
-	NewChat(chatname string, groupchat bool) (int, error)
-	AddChatMembers(userId int, chatId int) error
-	GroupChat(chatId int) (bool, error)
-	PrivateChat(userId int, chatId int) (bool, error)
-	SetChatName(chatId int, chatname string) error
+	GetUserIdByUsername(username string) (int, error)
+	UpdateUsername(userId int, newUsername string) error
 	GetUserChats(userId int) ([]int, error)
+	NewChat(chatName string, groupChat bool) (int, error)
+	AddChatMembers(userId int, chatId int) error
+	ChatMember(userId int, chatId int) (bool, error)
+	GroupChat(chatId int) (bool, error)
+	SetChatName(chatId int, newName string) error
+	GetChatName(chatId int) (string, error)
+	GetChatMembers(chatId int) ([]int, error)
+	RemoveChatMember(userId int, chatId int) error
 	Ping() error
 }
 
