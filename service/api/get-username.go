@@ -26,11 +26,11 @@ func (rt *_router) getUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Empty token"})
 	}
-	// Extract the user ID from the URL path
-	userIDParam := ps.ByName("id")
+	// Extract the user id from the url path
+	getUid := ps.ByName("id")
 
-	// Convert user ID to integer
-	requestedUserID, err := strconv.Atoi(userIDParam)
+	// Convert user id to integer
+	reqUid, err := strconv.Atoi(getUid)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or unauthorized user ID"})
@@ -38,7 +38,7 @@ func (rt *_router) getUsername(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Retrieve the user's name from the database
-	username, err := rt.db.GetUsername(requestedUserID)
+	username, err := rt.db.GetUsername(reqUid)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})

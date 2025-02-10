@@ -38,6 +38,9 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/chats/:chatId/members", rt.wrap(rt.addToGroup))
 	rt.router.DELETE("/chats/:chatId/members", rt.wrap(rt.leaveGroup))
 
+	// Added
+	rt.router.PUT("/newchat", rt.wrap(rt.newChat))
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

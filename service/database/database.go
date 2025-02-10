@@ -10,14 +10,18 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	// DoLogin(string) (User, error)
 	UserExists(username string) (bool, error)
 	CreateUser(username string, securityKey string) (int, error)
 	GetUserId(username string) (int, error)
 	GetUserKey(userId int) (string, error)
 	GetUsername(userId int) (string, error)
 	UpdateUsername(userId int, username string) error
-
+	NewChat(chatname string, groupchat bool) (int, error)
+	AddChatMembers(userId int, chatId int) error
+	GroupChat(chatId int) (bool, error)
+	PrivateChat(userId int, chatId int) (bool, error)
+	SetChatName(chatId int, chatname string) error
+	GetUserChats(userId int) ([]int, error)
 	Ping() error
 }
 
@@ -76,7 +80,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 		sqlStmt := `CREATE TABLE chats (
 			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL,
-			gif_photo BLOB NULL
+			gif_photo BLOB NULL,
+			group_chat BOOL
 		);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {

@@ -308,7 +308,46 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/InternalServerError' }  
-          
+
+  /newchat:
+    put:
+      tags: ["groups"]
+      summary: Begin a conversation with other users
+      description: Allows the current user to start a conversation with 1 or more users.
+      operationId: newChat
+      security:
+        - securityKey: []
+      requestBody:
+        description: Details about the new conversation.
+        content:
+          application/json:
+            schema:
+              description: The IDs of the chat members
+              type: object
+              properties:
+                members:
+                  type: array
+                  items: { $ref: '#/components/schemas/userId' }
+                  minItems: 1
+                  maxItems: 2000
+                  example: [1, 12, 123]
+                  description: User IDs to be added to the new chat.
+              required:
+                - members
+        required: true
+      responses:  
+        '200':
+          description: Successfully created a new conversation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/chatId' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }  
+        
+
   /chats/{chatId}:
     parameters:
       - name: chatId
