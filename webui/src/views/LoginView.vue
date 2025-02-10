@@ -61,6 +61,7 @@ export default {
         this.username = userResponse.data.username;
         this.msg = `Logged in successfully. Welcome back ${this.username}`;
         this.success = true;
+        this.$router.push("/home");
       } catch (e) {
         this.msg = "Login failed: " + (e.response?.data?.error || e.message);
       }

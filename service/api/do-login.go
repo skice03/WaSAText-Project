@@ -45,7 +45,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	exists, err := rt.db.UserExistence(username)
+	exists, err := rt.db.UserExists(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Database error"})

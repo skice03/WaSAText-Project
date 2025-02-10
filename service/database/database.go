@@ -11,7 +11,7 @@ import (
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	// DoLogin(string) (User, error)
-	UserExistence(username string) (bool, error)
+	UserExists(username string) (bool, error)
 	CreateUser(username string, securityKey string) (int, error)
 	GetUserId(username string) (int, error)
 	GetUserKey(userId int) (string, error)

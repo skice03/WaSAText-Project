@@ -13,7 +13,7 @@ import (
 func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	const bearerPrefix = "Bearer "
 
-	// Check Authorization header
+	// Check authorization header
 	token := r.Header.Get("Authorization")
 	if len(token) <= len(bearerPrefix) || token[:len(bearerPrefix)] != bearerPrefix {
 		writeErrorResponse(w, http.StatusUnauthorized, "You are not logged in. Please log in to continue.")
@@ -21,7 +21,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	}
 	token = token[len(bearerPrefix):]
 
-	// Extract and validate user ID from URL
+	// Extract and validate user id from url
 	userID, err := strconv.Atoi(ps.ByName("id"))
 	if err != nil {
 		writeErrorResponse(w, http.StatusBadRequest, "Invalid user ID.")
@@ -50,7 +50,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// Check if the username is already taken by another user
-	exists, err := rt.db.UserExistence(requestBody.Username)
+	exists, err := rt.db.UserExists(requestBody.Username)
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to check username availability.")
 		return

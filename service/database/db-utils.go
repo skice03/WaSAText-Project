@@ -1,16 +1,14 @@
 package database
 
-// Checking whether an user exists or not
-func (db *appdbimpl) UserExistence(username string) (bool, error) {
-	var count int
+// Verifying user existence
+func (db *appdbimpl) UserExists(username string) (bool, error) {
+	var exists bool
 	err := db.c.QueryRow(`
-		SELECT COUNT(1) 
-		FROM users 
-		WHERE username = ?`, username).Scan(&count)
+		SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)`, username).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
-	return count > 0, nil
+	return exists, nil
 }
 
 // Creating a new user
@@ -25,7 +23,7 @@ func (db *appdbimpl) CreateUser(username string, securityKey string) (int, error
 	return int(id), err
 }
 
-// Retrieving the username by user ID
+// Retrieving the username by user id
 func (db *appdbimpl) GetUserId(username string) (int, error) {
 	var userId int
 	err := db.c.QueryRow(`
@@ -36,15 +34,15 @@ func (db *appdbimpl) GetUserId(username string) (int, error) {
 	return userId, nil
 }
 
-// Retrieving the api key by user id
+// Retrieving the security key by user id
 func (db *appdbimpl) GetUserKey(userId int) (string, error) {
-	var key string
+	var securityKey string
 	err := db.c.QueryRow(`
-		SELECT security_key FROM users WHERE ID = ?`, userId).Scan(&key)
+		SELECT security_key FROM users WHERE ID = ?`, userId).Scan(&securityKey)
 	if err != nil {
 		return "", err
 	}
-	return key, nil
+	return securityKey, nil
 }
 
 // Get the username
