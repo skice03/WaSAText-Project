@@ -25,6 +25,7 @@ type AppDatabase interface {
 	SetChatName(chatId int, newName string) error
 	GetChatName(chatId int) (string, error)
 	GetChatMembers(chatId int) ([]int, error)
+	GetUserCount() (int, error)
 	RemoveChatMember(userId int, chatId int) error
 	Ping() error
 }

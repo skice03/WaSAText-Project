@@ -176,6 +176,16 @@ func (db *appdbimpl) GetChatMembers(chatId int) ([]int, error) {
 	return userList, nil
 }
 
+// Get the amount of currently registered users
+func (db *appdbimpl) GetUserCount() (int, error) {
+	var count int
+	err := db.c.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 // Removing a member from a chat
 func (db *appdbimpl) RemoveChatMember(userId int, chatId int) error {
 	_, err := db.c.Exec(`
