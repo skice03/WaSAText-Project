@@ -89,7 +89,7 @@ func (rt *_router) newChat(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	// Add members to the chat
 	for _, userId := range reqBody.Members {
-		err := rt.db.AddChatMembers(userId, chatId)
+		err := rt.db.AddChatMember(userId, chatId)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			_ = json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})

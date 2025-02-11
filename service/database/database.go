@@ -19,7 +19,7 @@ type AppDatabase interface {
 	UpdateUsername(userId int, newUsername string) error
 	GetUserChats(userId int) ([]int, error)
 	NewChat(chatName string, groupChat bool) (int, error)
-	AddChatMembers(userId int, chatId int) error
+	AddChatMember(userId int, chatId int) error
 	ChatMember(userId int, chatId int) (bool, error)
 	GroupChat(chatId int) (bool, error)
 	SetChatName(chatId int, newName string) error
@@ -27,6 +27,16 @@ type AppDatabase interface {
 	GetChatMembers(chatId int) ([]int, error)
 	GetUserCount() (int, error)
 	RemoveChatMember(userId int, chatId int) error
+	AddComment(textContent string, senderId int, messageId int) error
+	RemoveComment(senderId int, messageId int) error
+	SendMessage(chatId int, senderId int, textContent string, forwarded bool, timestamp time.Time) error
+	DeleteMessage(messageId int) error
+	ViewMessage(userId int, messageId int) error
+	ReceiveMessage(userId int, messageId int) error
+	GetChatMessages(chatId int) ([]int, error)
+	GetMessageComments(messageId int) ([]int, []string, error)
+	SeenMessage(messageId int) ([]int, error)
+	GetMessage(messageId int) (int, string, bool, time.Time, error)
 	Ping() error
 }
 
@@ -115,16 +125,34 @@ func New(db *sql.DB) (AppDatabase, error) {
 			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			chat_id INTEGER NOT NULL,
 			sender_id INTEGER NOT NULL,
-			text_message TEXT NOT NULL,
-			gif_photo BLOB NOT NULL,
+			text_message TEXT,
+			gif_photo BLOB,
 			timestamp DATETIME NOT NULL,
-			status TEXT NOT NULL,
+			forwarded BOOL,
 			FOREIGN KEY (chat_id) REFERENCES chats(id),
 			FOREIGN KEY (sender_id) REFERENCES users(id)
 		);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure (messages): %w", err)
+		}
+	}
+
+	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='message_status';`).Scan(&tableName)
+	if errors.Is(err, sql.ErrNoRows) {
+		sqlStmt := `CREATE TABLE message_status (
+			message_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			sent BOOL,
+			seen BOOL,
+			comment TEXT NOT NULL,
+			PRIMARY KEY (user_id, message_id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (message_id) REFERENCES chats(id)
+		);`
+		_, err = db.Exec(sqlStmt)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure (message_status): %w", err)
 		}
 	}
 
